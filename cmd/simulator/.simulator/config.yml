@@ -1,0 +1,5 @@
+endpoints:
+- http://localhost:56056/ext/bc/8rbtLXVVZGvLsFgWi6qwo2teGNaoHYaQQd7YCqCnVRLu2E63m/rpc
+base-fee: 25
+priority-fee: 1
+concurrency: 10
