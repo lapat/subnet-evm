@@ -36,6 +36,9 @@
     "balances": "npx hardhat balances"
   },
   "dependencies": {
+    "@chainlink/contracts": "^0.4.0",
+    "@openzeppelin/contracts-upgradeable": "^4.5.2",
+    "@traderjoe-xyz/core": "^2.4.6",
     "typescript": "^4.3.5"
   },
   "engines": {

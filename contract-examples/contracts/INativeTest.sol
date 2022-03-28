@@ -6,4 +6,5 @@ interface INativeTest is IAllowList {
   // Mint [amount] number of native coins and send to [addr]
   //function mintNativeCoin(address addr, uint256 amount) external;
   function testFunction(address addr, uint256 amount) external;
+  function testReturnNumber(address addr) external view returns (uint256);
 }

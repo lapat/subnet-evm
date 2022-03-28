@@ -148,6 +148,15 @@ export default {
         version: "0.6.2"
       },
       {
+        version: "0.6.12",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200
+          }
+        }
+      },
+      {
         version: "0.6.4"
       },
       {
@@ -155,7 +164,16 @@ export default {
       },
       {
         version: "0.8.0"
+      },
+      {
+        version: "0.8.7",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200
+          }
       }
+    }
     ]
   },
   networks: {
@@ -163,7 +181,7 @@ export default {
       //"http://{ip}:{port}/ext/bc/{chainID}/rpc
       //url: "http://127.0.0.1:9650/ext/bc/dRTfPJh4jEaRZoGkPc7xreeYbDGBrGWRV48WAYVyUgApsmzGo/rpc",
       //url: "http://127.0.0.1:8545/ext/bc/dRTfPJh4jEaRZoGkPc7xreeYbDGBrGWRV48WAYVyUgApsmzGo/rpc",
-      url: "http://localhost:55696/ext/bc/3RS6ia991gkF4mDqEjrX3FkahWRV3xzNvYvKgYDnkwLyPfd2R/rpc",
+      url: "http://localhost:51748/ext/bc/RumtG4yVA5Dhd4gVJRDUUxxMUs3QEqxKAJEi6A6Y9HSy9J2z2/rpc",
       //chainId: 43214,
       chainId: 99999,
       accounts: [

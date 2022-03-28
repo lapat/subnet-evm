@@ -25,6 +25,7 @@ var (
 	setEnabledSignature    = CalculateFunctionSelector("setEnabled(address)")
 	setNoneSignature       = CalculateFunctionSelector("setNone(address)")
 	readAllowListSignature = CalculateFunctionSelector("readAllowList(address)")
+	//readAllowListSignatureTwo = CalculateFunctionSelector("readAllowListTwo(address)")
 
 	// Error returned when an invalid write is attempted
 	ErrCannotModifyAllowList = errors.New("non-admin cannot modify allow list")
@@ -186,8 +187,23 @@ func createReadAllowList(precompileAddr common.Address) RunStatefulPrecompileFun
 		role := getAllowListStatus(evm.GetStateDB(), precompileAddr, readAddress)
 		roleBytes := common.Hash(role).Bytes()
 		return roleBytes, remainingGas, nil
+
+	
+
 	}
 }
+/*
+func createReadAllowListTwo(precompileAddr common.Address) RunStatefulPrecompileFunc {
+	return func(evm PrecompileAccessibleState, callerAddr common.Address, addr common.Address, input []byte, suppliedGas uint64, readOnly bool) (ret []byte, remainingGas uint64, err error) {
+
+		zero := common.BigToHash(big.NewInt(0))
+		roleBytes := common.Hash(zero).Bytes()
+		return roleBytes, remainingGas, nil
+
+
+	}
+}
+*/
 
 // createAllowListPrecompile returns a StatefulPrecompiledContract with R/W control of an allow list at [precompileAddr]
 func createAllowListPrecompile(precompileAddr common.Address) StatefulPrecompiledContract {
@@ -195,6 +211,7 @@ func createAllowListPrecompile(precompileAddr common.Address) StatefulPrecompile
 	setEnabled := newStatefulPrecompileFunction(setEnabledSignature, createAllowListRoleSetter(precompileAddr, AllowListEnabled))
 	setNone := newStatefulPrecompileFunction(setNoneSignature, createAllowListRoleSetter(precompileAddr, AllowListNoRole))
 	read := newStatefulPrecompileFunction(readAllowListSignature, createReadAllowList(precompileAddr))
+	//readTwo := newStatefulPrecompileFunction(readAllowListSignatureTwo, createReadAllowListTwo(precompileAddr))
 
 	// Construct the contract with no fallback function.
 	contract := newStatefulPrecompileWithFunctionSelectors(nil, []*statefulPrecompileFunction{setAdmin, setEnabled, setNone, read})

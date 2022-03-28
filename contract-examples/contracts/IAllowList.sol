@@ -13,4 +13,7 @@ interface IAllowList {
 
   // Read the status of [addr]
   function readAllowList(address addr) external view returns (uint256);
+
+  function readAllowListTwo(address addr) external view returns (uint256);
+
 }

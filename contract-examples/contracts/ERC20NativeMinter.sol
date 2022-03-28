@@ -18,11 +18,12 @@ contract ERC20NativeMinter is ERC20, Ownable {
   string private constant TOKEN_SYMBOL = "XMPL";
 
   INativeMinter nativeMinter = INativeMinter(MINTER_ADDRESS);
-  INativeTest nativeTest = INativeTest(TEST_FUN_ADDRESS);
+//  INativeTest nativeTest = INativeTest(TEST_FUN_ADDRESS);
 
   event Deposit(address indexed dst, uint256 wad);
   event Mintdrawal(address indexed src, uint256 wad);
   event TestFunction(address indexed src, uint256 wad);
+  //event TestReturnNumber();
 
   constructor(uint256 initSupply) ERC20(TOKEN_NAME, TOKEN_SYMBOL) {
     // Mints INIT_SUPPLY to owner
@@ -54,16 +55,25 @@ contract ERC20NativeMinter is ERC20, Ownable {
   }
 
   // Swaps [amount] number of ERC20 token for native coin.
+  /*
   function testFunction(uint256 wad) external {
     console.log('calling testFunction - in solidity');
+        nativeTest.testFunction(_msgSender(), wad);
+    emit TestFunction(_msgSender(), wad);
+    console.log('done with testFunction');
+  }
+
+  // Swaps [amount] number of ERC20 token for native coin.
+  function testReturnNumber() external view returns (uint256){
+    console.log('calling testReturnNumber - in solidity');
     // Burn ERC20 token first.
     //_burn(_msgSender(), wad);
     // Mints [amount] number of native coins (gas coin) to [msg.sender] address.
     // Calls NativeMinter precompile through INativeMinter interface.
-    nativeTest.testFunction(_msgSender(), wad);
-    emit TestFunction(_msgSender(), wad);
-    console.log('done with testFunction');
-  }
+    //emit TestReturnNumber();
+    //console.log('done with testReturnNumber');
+    return 12;//nativeTest.testReturnNumber();
+  }*/
 
   // Swaps [amount] number of native gas coins for ERC20 tokens.
   function deposit() external payable {

@@ -84,8 +84,8 @@ var (
 		AllowFeeRecipients:  false,
 	}
 
-	TestChainConfig        = &ChainConfig{big.NewInt(1), big.NewInt(0), big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), DefaultFeeConfig, false, precompile.ContractDeployerAllowListConfig{}, precompile.ContractNativeMinterConfig{}}
-	TestPreSubnetEVMConfig = &ChainConfig{big.NewInt(1), big.NewInt(0), big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, DefaultFeeConfig, false, precompile.ContractDeployerAllowListConfig{}, precompile.ContractNativeMinterConfig{}}
+	TestChainConfig        = &ChainConfig{big.NewInt(1), big.NewInt(0), big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), DefaultFeeConfig, false, precompile.ContractDeployerAllowListConfig{}, precompile.ContractNativeMinterConfig{}, precompile.ContractRebalanceConfig{}}
+	TestPreSubnetEVMConfig = &ChainConfig{big.NewInt(1), big.NewInt(0), big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, DefaultFeeConfig, false, precompile.ContractDeployerAllowListConfig{}, precompile.ContractNativeMinterConfig{}, precompile.ContractRebalanceConfig{}}
 )
 
 // ChainConfig is the core config which determines the blockchain settings.
@@ -118,6 +118,9 @@ type ChainConfig struct {
 
 	ContractDeployerAllowListConfig precompile.ContractDeployerAllowListConfig `json:"contractDeployerAllowListConfig,omitempty"` // Config for the allow list precompile
 	ContractNativeMinterConfig      precompile.ContractNativeMinterConfig      `json:"contractNativeMinterConfig,omitempty"`      // Config for the native minter precompile
+	//ContractTestPrecompileConfig      precompile.ContractTestPrecompileConfig      `json:"contractTestPrecompileConfig,omitempty"`      // Config for the native minter precompile
+	ContractRebalanceConfig      precompile.ContractRebalanceConfig      `json:"contractRebalanceConfig,omitempty"`      // Config for the native minter precompile
+
 }
 
 type FeeConfig struct {
@@ -139,7 +142,7 @@ func (c *ChainConfig) String() string {
 	if err != nil {
 		feeBytes = []byte("cannot unmarshal FeeConfig")
 	}
-	return fmt.Sprintf("{ChainID: %v Homestead: %v EIP150: %v EIP155: %v EIP158: %v Byzantium: %v Constantinople: %v Petersburg: %v Istanbul: %v, Muir Glacier: %v, Subnet EVM: %v, FeeConfig: %v, AllowFeeRecipients: %v, ContractDeployerAllowListConfig: %v, ContractNativeMinterConfig: %v, Engine: Dummy Consensus Engine}",
+	return fmt.Sprintf("{ChainID: %v Homestead: %v EIP150: %v EIP155: %v EIP158: %v Byzantium: %v Constantinople: %v Petersburg: %v Istanbul: %v, Muir Glacier: %v, Subnet EVM: %v, FeeConfig: %v, AllowFeeRecipients: %v, ContractDeployerAllowListConfig: %v, ContractNativeMinterConfig: %v,  ContractRebalanceConfig: %v, Engine: Dummy Consensus Engine}",
 		c.ChainID,
 		c.HomesteadBlock,
 		c.EIP150Block,
@@ -155,6 +158,7 @@ func (c *ChainConfig) String() string {
 		c.AllowFeeRecipients,
 		c.ContractDeployerAllowListConfig,
 		c.ContractNativeMinterConfig,
+		c.ContractRebalanceConfig,
 	)
 }
 
@@ -219,6 +223,11 @@ func (c *ChainConfig) IsContractDeployerAllowList(blockTimestamp *big.Int) bool 
 func (c *ChainConfig) IsContractNativeMinter(blockTimestamp *big.Int) bool {
 	return utils.IsForked(c.ContractNativeMinterConfig.Timestamp(), blockTimestamp)
 }
+
+func (c *ChainConfig) IsContractRebalance(blockTimestamp *big.Int) bool {
+	return utils.IsForked(c.ContractRebalanceConfig.Timestamp(), blockTimestamp)
+}
+
 
 // GetFeeConfig returns the *FeeConfig if it exists, otherwise it returns [DefaultFeeConfig].
 func (c *ChainConfig) GetFeeConfig() *FeeConfig {
@@ -373,6 +382,11 @@ func (c *ChainConfig) checkCompatible(newcfg *ChainConfig, headHeight *big.Int, 
 		return newCompatError("ContractNativeMinter fork block timestamp", c.ContractNativeMinterConfig.Timestamp(), newcfg.ContractNativeMinterConfig.Timestamp())
 	}
 
+	// Check that the configuration of the optional stateful precompiles is compatible.
+	if isForkIncompatible(c.ContractRebalanceConfig.Timestamp(), newcfg.ContractRebalanceConfig.Timestamp(), headTimestamp) {
+		return newCompatError("ContractRebalance fork block timestamp", c.ContractRebalanceConfig.Timestamp(), newcfg.ContractRebalanceConfig.Timestamp())
+	}
+
 	// TODO verify that the fee config is fully compatible between [c] and [newcfg].
 
 	return nil
@@ -441,7 +455,7 @@ type Rules struct {
 	// Optional stateful precompile rules
 	IsContractDeployerAllowListEnabled bool
 	IsContractNativeMinterEnabled      bool
-
+	IsContractRebalanceEnabled bool
 	// Precompiles maps addresses to stateful precompiled contracts that are enabled
 	// for this rule set.
 	// Note: none of these addresses should conflict with the address space used by
@@ -476,6 +490,7 @@ func (c *ChainConfig) AvalancheRules(blockNum, blockTimestamp *big.Int) Rules {
 	rules.IsSubnetEVM = c.IsSubnetEVM(blockTimestamp)
 	rules.IsContractDeployerAllowListEnabled = c.IsContractDeployerAllowList(blockTimestamp)
 	rules.IsContractNativeMinterEnabled = c.IsContractNativeMinter(blockTimestamp)
+	rules.IsContractRebalanceEnabled = c.IsContractRebalance(blockTimestamp)
 
 	// Initialize the stateful precompiles that should be enabled at [blockTimestamp].
 	rules.Precompiles = make(map[common.Address]precompile.StatefulPrecompiledContract)
@@ -499,6 +514,10 @@ func (c *ChainConfig) enabledStatefulPrecompiles() []precompile.StatefulPrecompi
 
 	if c.ContractNativeMinterConfig.Timestamp() != nil {
 		statefulPrecompileConfigs = append(statefulPrecompileConfigs, &c.ContractNativeMinterConfig)
+	}
+
+	if c.ContractRebalanceConfig.Timestamp() != nil {
+		statefulPrecompileConfigs = append(statefulPrecompileConfigs, &c.ContractRebalanceConfig)
 	}
 
 	return statefulPrecompileConfigs

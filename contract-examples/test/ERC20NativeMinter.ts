@@ -13,6 +13,7 @@ const MINTER_ADDRESS = "0x0200000000000000000000000000000000000001";
 
 const MINT_PRECOMPILE_ADDRESS = "0x0200000000000000000000000000000000000001";
 const TEST_FUN_ADDRESS="0x0200000000000000000000000000000000000002";
+const REBALANCE_ADDRESS="0x0200000000000000000000000000000000000003";
 
 const mintValue = ethers.utils.parseEther("1")
 const initialValue = ethers.utils.parseEther("10")
@@ -54,18 +55,27 @@ describe("ERC20NativeMinter", function () {
   });
 
 
-  it("admin should be able to call testFunction", async function () {
-    console.log('TEST_FUN_ADDRESS:'+TEST_FUN_ADDRESS)
-    const testFunContract = await ethers.getContractAt("INativeTest", TEST_FUN_ADDRESS, owner);
-    console.log('owner.address:'+owner.address)
-    console.log('mintValue:'+mintValue)
 
-    let tx = await testFunContract.testFunction(owner.address, mintValue)
-    let txRec = await tx.wait()
-    console.log("tx:"+JSON.stringify(tx,null,2))
-    console.log("txRec:"+JSON.stringify(txRec,null,2))
+
+
+  it("Should be able to query coingecko directly from within smart contract.", async function () {
+    var AVAX_ADDRESS = "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7"
+
+  /*  var EvnFunContract: ContractFactory = await ethers.getContractFactory("TestEvmFunctions", { signer: owner })
+    contract = await EvnFunContract.deploy()
+    await contract.deployed()
+    var contractAddress: string = contract.address
+
+    var testFunCon = await ethers.getContractAt("TestEvmFunctions", contractAddress, owner);
+    console.log('got con - TestEvmFunctions')
+    var x = await testFunCon.testCallFun();
+    */
+    var rReb = await ethers.getContractAt("IRebalance", REBALANCE_ADDRESS, owner);
+    let avaxPriceRightNow = await rReb.getCoingeckoPrice(AVAX_ADDRESS);
+    console.log("Avax Price:"+avaxPriceRightNow);
 
   })
+  //return;
   // this contract is not given minter permission yet, so should not mintdraw
   it("should be able to mintdraw", async function () {
     console.log("MINT_PRECOMPILE_ADDRESS:"+MINT_PRECOMPILE_ADDRESS);
@@ -75,7 +85,7 @@ describe("ERC20NativeMinter", function () {
     console.log("contract.address:"+contract.address);
 
     let contractRole = await minterList.readAllowList(contract.address);
-    console.log("g");
+    console.log("contractRole:"+contractRole);
     expect(contractRole).to.be.equal(ROLES.NONE)
     try {
       await contract.mintdraw(mintValue)
@@ -104,10 +114,10 @@ describe("ERC20NativeMinter", function () {
   it("admin should mintdraw - calling it*****", async function () {
     let initBalance: BigNumber = await contract.balanceOf(owner.address)
     let initNativeBalance: BigNumber = await ethers.provider.getBalance(owner.address)
-    console.log('calling mintdraw:')
+    //console.log('calling mintdraw:')
     let tx = await contract.mintdraw(mintValue)
     let txRec = await tx.wait()
-    console.log('called txRec:'+JSON.stringify(txRec,null,2))
+    //console.log('called txRec:'+JSON.stringify(txRec,null,2))
     let balance = await contract.balanceOf(owner.address)
     expect(balance).to.be.equal(initBalance.sub(mintValue))
 

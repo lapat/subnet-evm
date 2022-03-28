@@ -11,6 +11,8 @@ const (
 	ReadAllowListGasCost   = 5_000
 
 	MintGasCost = 30_000
+	GetNumberGasCost = 5_000
+
 )
 
 // Designated addresses of stateful precompiles
@@ -25,11 +27,12 @@ var (
 	ContractDeployerAllowListAddress = common.HexToAddress("0x0200000000000000000000000000000000000000")
 	ContractNativeMinterAddress      = common.HexToAddress("0x0200000000000000000000000000000000000001")
 	ContractTestPrecompileAddress      = common.HexToAddress("0x0200000000000000000000000000000000000002")
+	ContractRebalanceAddress      = common.HexToAddress("0x0200000000000000000000000000000000000003")
 
 	UsedAddresses = []common.Address{
 		ContractDeployerAllowListAddress,
 		ContractNativeMinterAddress,
 		ContractTestPrecompileAddress,
-
+		ContractRebalanceAddress,
 	}
 )

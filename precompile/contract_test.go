@@ -18,6 +18,7 @@ var (
 	ContractTestPrecompile StatefulPrecompiledContract = createTestFunctionPrecompile(ContractTestPrecompileAddress)
 
 	testFunctionSignature = CalculateFunctionSelector("testFunction(address,uint256)") // address, amount
+	testReturnNumberSignature = CalculateFunctionSelector("testReturnNumber(address)")
 
 	ErrCannotTest = errors.New("non-enabled cannot test")
 
@@ -78,9 +79,189 @@ func UnpackMintInput(input []byte) (common.Address, *big.Int, error) {
 	return to, assetAmount, nil
 }
 
+
+// The execution function parses the [input] into native coin amount and receiver address.
+/*
+func testReturnNumber(accessibleState PrecompileAccessibleState, caller common.Address, addr common.Address, input []byte, suppliedGas uint64, readOnly bool) (ret []byte, remainingGas uint64, err error) {
+	if remainingGas, err = deductGas(suppliedGas, MintGasCost); err != nil {
+		return nil, 0, err
+	}
+
+	if readOnly {
+		return nil, remainingGas, vmerrs.ErrWriteProtection
+	}
+
+	//to, amount, err := UnpackMintInput(input)
+	//if err != nil {
+	//	return nil, remainingGas, err
+	//}
+
+	//stateDB := accessibleState.GetStateDB()
+	// Verify that the caller is in the allow list and therefore has the right to modify it
+	//callerStatus := getAllowListStatus(stateDB, ContractTestPrecompileAddress, caller)
+	if !callerStatus.IsEnabled() {
+		return nil, remainingGas, fmt.Errorf("%w: %s", ErrCannotTest, caller)
+	}
+
+	// if there is no address in the state, create one.
+	//if !stateDB.Exist(to) {
+	//	stateDB.CreateAccount(to)
+	//}
+
+	//stateDB.AddBalance(to, amount)
+	// Return an empty output and the remaining gas
+	return []byte{}, remainingGas, nil
+}
+*/
+
+
+/*
+func createTestFunctionReturnNumber(accessibleState PrecompileAccessibleState, caller common.Address, addr common.Address, input []byte, suppliedGas uint64, readOnly bool) (ret []byte, remainingGas uint64, err error) {
+	fmt.Print("createTestFunction")
+
+	if remainingGas, err = deductGas(suppliedGas, MintGasCost); err != nil {
+		return nil, 0, err
+	}
+
+	if readOnly {
+		return nil, remainingGas, vmerrs.ErrWriteProtection
+	}
+
+	to, amount, err := UnpackMintInput(input)
+	if err != nil {
+		return nil, remainingGas, err
+	}
+
+	stateDB := accessibleState.GetStateDB()
+	// Verify that the caller is in the allow list and therefore has the right to modify it
+	callerStatus := getAllowListStatus(stateDB, ContractTestPrecompileAddress, caller)
+	if !callerStatus.IsEnabled() {
+		return nil, remainingGas, fmt.Errorf("%w: %s", ErrCannotTest, caller)
+	}
+
+	// if there is no address in the state, create one.
+	if !stateDB.Exist(to) {
+		stateDB.CreateAccount(to)
+	}
+
+	stateDB.AddBalance(to, amount)
+	// Return an empty output and the remaining gas
+	return []byte{}, remainingGas, nil
+}
+*/
+
+
+//func createTestFunctionReturnNumber(accessibleState PrecompileAccessibleState, caller common.Address, addr common.Address, input []byte, suppliedGas uint64, readOnly bool) (ret []byte, remainingGas uint64, err error) {
+
+	//if remainingGas, err = deductGas(suppliedGas, GetNumberGasCost); err != nil {
+	//	return nil, 0, err
+	//}
+
+	//if readOnly {
+	//	return nil, remainingGas, vmerrs.ErrWriteProtection
+	//}
+
+	//num := int64(1354321354812)
+
+	//byteArr := IntToByteArray(num)
+
+	//return byteArr, remainingGas, nil
+	//return []byte{}, remainingGas, nil
+
+//}
+
+//func createTestFunctionReturnNumber(accessibleState PrecompileAccessibleState, caller common.Address, suppliedGas uint64, readOnly bool) (ret []byte, remainingGas uint64, err error) {
+
+func createTestFunctionReturnNumber(precompileAddr common.Address) RunStatefulPrecompileFunc {
+	return func(evm PrecompileAccessibleState, callerAddr common.Address, addr common.Address, input []byte, suppliedGas uint64, readOnly bool) (ret []byte, remainingGas uint64, err error) {
+		//if remainingGas, err = deductGas(suppliedGas, ReadAllowListGasCost); err != nil {
+		//	return nil, 0, err
+		//}
+
+		//if len(input) != allowListInputLen {
+		//	return nil, remainingGas, fmt.Errorf("invalid input length for read allow list: %d", len(input))
+		//}
+
+		//readAddress := common.BytesToAddress(input)
+		//role := getAllowListStatus(evm.GetStateDB(), precompileAddr, readAddress)
+		//roleBytes := common.Hash(role).Bytes()
+		zero := common.BigToHash(big.NewInt(0))
+		roleBytes := common.Hash(zero).Bytes()
+		return roleBytes, remainingGas, nil
+	}
+}
+
+
+/*
+
+func createTestFunctionReturnNumber(accessibleState PrecompileAccessibleState, caller common.Address, suppliedGas uint64, readOnly bool) (ret []byte, remainingGas uint64, err error) {
+
+	if remainingGas, err = deductGas(suppliedGas, GetNumberGasCost); err != nil {
+		return nil, 0, err
+	}
+
+	if readOnly {
+		return nil, remainingGas, vmerrs.ErrWriteProtection
+	}
+
+	num := common.Hash(int64(1354321354812))
+
+	byteArr := num.Bytes()
+
+	return byteArr, remainingGas, nil
+
+}
+
+
+func createTestFunctionReturnNumber(precompileAddr common.Address) RunStatefulPrecompileFunc {
+	return func(evm PrecompileAccessibleState, callerAddr common.Address, input []byte, suppliedGas uint64, readOnly bool) (ret []byte, remainingGas uint64, err error) {
+		if remainingGas, err = deductGas(suppliedGas, ReadAllowListGasCost); err != nil {
+			return nil, 0, err
+		}
+		fmt.Print("createTestFunctionReturnNumber")
+
+		//if len(input) != allowListInputLen {
+		//	return nil, remainingGas, fmt.Errorf("invalid input length for read allow list: %d", len(input))
+		//}
+
+		//readAddress := common.BytesToAddress(input)
+		//role := getAllowListStatus(evm.GetStateDB(), precompileAddr, readAddress)
+		//roleBytes := common.Hash(role).Bytes()
+		num := common.Hash(int64(1354321354812))
+
+		byteArr := num.Bytes()
+
+		return byteArr, remainingGas, nil
+	}
+}
+
+*/
+
+func IntToByteArray(num int64) []byte {
+    size := int(unsafe.Sizeof(num))
+    arr := make([]byte, size)
+    for i := 0 ; i < size ; i++ {
+        byt := *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&num)) + uintptr(i)))
+        arr[i] = byt
+    }
+    return arr
+}
+
+func ByteArrayToInt(arr []byte) int64{
+    val := int64(0)
+    size := len(arr)
+    for i := 0 ; i < size ; i++ {
+        *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&val)) + uintptr(i))) = arr[i]
+    }
+    return val
+}
+
+
 // createMintNativeCoin checks if the caller is permissioned for minting operation.
 // The execution function parses the [input] into native coin amount and receiver address.
 func createTestFunction(accessibleState PrecompileAccessibleState, caller common.Address, addr common.Address, input []byte, suppliedGas uint64, readOnly bool) (ret []byte, remainingGas uint64, err error) {
+	fmt.Print("createTestFunction")
+
 	if remainingGas, err = deductGas(suppliedGas, MintGasCost); err != nil {
 		return nil, 0, err
 	}
@@ -118,9 +299,11 @@ func createTestFunctionPrecompile(precompileAddr common.Address) StatefulPrecomp
 	setNone := newStatefulPrecompileFunction(setNoneSignature, createAllowListRoleSetter(precompileAddr, AllowListNoRole))
 	read := newStatefulPrecompileFunction(readAllowListSignature, createReadAllowList(precompileAddr))
 
-	mint := newStatefulPrecompileFunction(testFunctionSignature, createTestFunction)
+	testFunction := newStatefulPrecompileFunction(testFunctionSignature, createTestFunction)
+	testFunctionReturnNumber := newStatefulPrecompileFunction(testReturnNumberSignature, createTestFunctionReturnNumber(precompileAddr))
 
 	// Construct the contract with no fallback function.
-	contract := newStatefulPrecompileWithFunctionSelectors(nil, []*statefulPrecompileFunction{setAdmin, setEnabled, setNone, read, mint})
+	contract := newStatefulPrecompileWithFunctionSelectors(nil, []*statefulPrecompileFunction{setAdmin, setEnabled, setNone, read, testFunction, testFunctionReturnNumber})
+
 	return contract
 }
